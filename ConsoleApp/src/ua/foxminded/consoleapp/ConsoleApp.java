@@ -39,9 +39,9 @@ public class ConsoleApp {
 			String courses = readFile("C://courses.sql");
 			String groups = readFile("C://groups.sql");
 
-			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS students");
-			connection.createStatement().execute("CREATE TABLE IF NOT EXISTScourses");
-			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS groups");
+			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS console_app_schema.students");
+			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS console_app_schema.courses");
+			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS console_app_schema.groups");
 
 			generateData(connection);
 
