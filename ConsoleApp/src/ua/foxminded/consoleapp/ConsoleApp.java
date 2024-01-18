@@ -9,11 +9,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.io.FileInputStream;
 import java.sql.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.io.FileReader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ConsoleApp {
 
@@ -39,9 +39,9 @@ public class ConsoleApp {
 			String courses = readFile("C://courses.sql");
 			String groups = readFile("C://groups.sql");
 
-			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS console_app_schema.students");
-			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS console_app_schema.courses");
-			connection.createStatement().execute("CREATE TABLE IF NOT EXISTS console_app_schema.groups");
+			connection.createStatement().execute(students);
+			connection.createStatement().execute(courses);
+			connection.createStatement().execute(groups);
 
 			generateData(connection);
 
@@ -86,68 +86,88 @@ public class ConsoleApp {
 	}
 
 	public static void generateData(Connection connection) throws SQLException {
-		Statement statement = connection.createStatement();
+		 Statement statement = connection.createStatement();
 
-		for (int i = 0; i < 10; i++) {
-			statement.executeUpdate("INSERT INTO groups (group_name) VALUES ('" + generateGroupName() + "')");
-		}
+	        for (int i = 0; i < 10; i++) {
+	            int generatedGroupId = generateGroupId();
+	            statement.executeUpdate("INSERT INTO console_app_schema.groups (group_id, group_name) VALUES (" + generatedGroupId + ", '" + generateGroupName() + "')");
+	        }
 
-		for (int i = 0; i < 200; i++) {
-			List<Student> students = new ArrayList<>();
-			generateStudents(students);
-			for (Student student : students) {
-				int groupId = generateGroupId();
-				statement.executeUpdate("INSERT INTO students (student_id, group_id, first_name, last_name) VALUES ("
-						+ i + ", " + groupId + ", '" + student.fullName + "')");
-			}
+	        for (int i = 0; i < 200; i++) {
+	            List<Student> students = new ArrayList<>();
+	            generateStudentsWithSeparateNames(students);
+	            for (Student student : students) {
+	                int groupId = generateGroupId();
+	                statement.executeUpdate("INSERT INTO console_app_schema.students (student_id, group_id, first_name, last_name) VALUES (" + i + ", " + groupId + ", '" + student.firstName + "', '" + student.lastName + "')");
+	            }
+	        }
 
 			for (int studentId = 1; studentId <= 200; studentId++) {
 				int numCourses = 1 + new Random().nextInt(3);
 				for (int j = 0; j < numCourses; j++) {
 					int courseId = new Random().nextInt(courses.length) + 1;
-					statement.executeUpdate("INSERT INTO student_courses (student_id, course_id) VALUES (" + studentId
-							+ ", " + courseId + ")");
+					statement.executeUpdate("INSERT INTO student_courses (student_id, course_id) VALUES (" + studentId+ ", " + courseId + ")");
 				}
 			}
+			
+			for (int j = 1; j <= 10; j++) {
+	            String courseName = courses[j - 1];
+	            String courseDescription = "Description for " + courseName;  
+	            statement.executeUpdate("INSERT INTO console_app_schema.courses (course_id, course_name, course_description) VALUES (" + j + ", '" + courseName + "', '" + courseDescription + "')");
+	        }
 		}
-	}
+	
+	
 
 	private static int generateGroupId() {
 
-		return new Random().nextInt(10) + 1;
+		Set<Integer> generatedIds = new HashSet<>();
+
+		while (true) {
+			int id = new Random().nextInt(100) + 1;
+			if (!generatedIds.contains(id)) {
+				generatedIds.add(id);
+				return id;
+			}
+		}
 	}
 
 	private static class Student {
-		private String fullName;
+	    private String firstName;
+	    private String lastName;
 
-		public void setFullName(String fullName) {
-			this.fullName = fullName;
-		}
+	    public void setFirstName(String firstName) {
+	        this.firstName = firstName;
+	    }
+
+	    public void setLastName(String lastName) {
+	        this.lastName = lastName;
+	    }
 	}
 
-	private static void generateStudents(List<Student> students) {
-		List<String> usedFullNames = new ArrayList<>();
+	private static void generateStudentsWithSeparateNames(List<Student> students) {
+	    List<String> usedNames = new ArrayList<>();
 
-		for (int i = 0; i < 200; i++) {
-			String fullName = generateFullName(usedFullNames);
-			Student student = new Student();
-			student.setFullName(fullName);
-			students.add(student);
-		}
+	    for (int i = 0; i < 200; i++) {
+	        String firstName = generateRandomName(usedNames, firstNames);
+	        String lastName = generateRandomName(usedNames, lastNames);
+	        Student student = new Student();
+	        student.setFirstName(firstName);
+	        student.setLastName(lastName);
+	        students.add(student);
+	    }
 	}
 
-	private static String generateFullName(List<String> usedFullNames) {
-		Random random = new Random();
-		while (true) {
-			int firstNameIndex = random.nextInt(firstNames.length);
-			int lastNameIndex = random.nextInt(lastNames.length);
-			String fullName = firstNames[firstNameIndex] + " " + lastNames[lastNameIndex];
-
-			if (!usedFullNames.contains(fullName)) {
-				usedFullNames.add(fullName);
-				return fullName;
-			}
-		}
+	private static String generateRandomName(List<String> usedNames, String[] nameArray) {
+	    Random random = new Random();
+	    while (true) {
+	        int nameIndex = random.nextInt(nameArray.length);
+	        String name = nameArray[nameIndex];
+	        if (!usedNames.contains(name)) {
+	            usedNames.add(name);
+	            return name;
+	        }
+	    }
 	}
 
 	private static void ConsoleMenu(Connection connection) throws SQLException {
@@ -245,24 +265,23 @@ public class ConsoleApp {
 	}
 
 	private static void addNewStudent(Connection connection) throws SQLException {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Enter first name: ");
-		String firstName = scanner.nextLine();
-		System.out.print("Enter last name: ");
-		String lastName = scanner.nextLine();
-		System.out.print("Enter group ID: ");
-		int groupId = scanner.nextInt();
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter first name: ");
+        String firstName = scanner.nextLine();
+        System.out.print("Enter last name: ");
+        String lastName = scanner.nextLine();
+        System.out.print("Enter group ID: ");
+        int groupId = scanner.nextInt();
 
-		PreparedStatement insertStatement = connection
-				.prepareStatement("INSERT INTO students (first_name, last_name, group_id) VALUES (?, ?, ?)");
-		insertStatement.setString(1, firstName);
-		insertStatement.setString(2, lastName);
-		insertStatement.setInt(3, groupId);
+        PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO console_app_schema.students (first_name, last_name, group_id) VALUES (?, ?, ?)");
+        insertStatement.setString(1, firstName);
+        insertStatement.setString(2, lastName);
+        insertStatement.setInt(3, groupId);
 
-		insertStatement.executeUpdate();
+        insertStatement.executeUpdate();
 
-		System.out.println("Student added successfully.");
-	}
+        System.out.println("Student added successfully.");
+    }
 
 	private static void deleteStudentById(Connection connection) throws SQLException {
 		Scanner scanner = new Scanner(System.in);
