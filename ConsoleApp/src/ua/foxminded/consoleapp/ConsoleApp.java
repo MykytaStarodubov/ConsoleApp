@@ -14,6 +14,12 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.*;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 
 public class ConsoleApp {
 
@@ -27,9 +33,9 @@ public class ConsoleApp {
 
 	private static final String[] courses = { "Math", "Biology", "Chemistry", "Physics", "English", "History",
 			"Geography", "Computer Science", "Art", "Music" };
-	
+
 	private static final Object lock = new Object();
-	
+
 	public static void main(String[] args) throws Exception {
 
 		try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/console_app",
@@ -91,28 +97,18 @@ public class ConsoleApp {
 		Statement statement = connection.createStatement();
 
 		for (int i = 0; i < 10; i++) {
-			int generatedGroupId = generateGroupId();
-			statement.executeUpdate("INSERT INTO console_app_schema.groups (group_id, group_name) VALUES ("
-					+ generatedGroupId + ", '" + generateGroupName() + "')");
+			statement.executeUpdate(
+					"INSERT INTO console_app_schema.groups (group_name) VALUES ('" + generateGroupName() + "');");
 		}
 
 		for (int i = 0; i < 200; i++) {
 			List<Student> students = new ArrayList<>();
 			generateStudentsWithSeparateNames(students);
 			for (Student student : students) {
-				int groupId = generateGroupId();
+				int student_id = generateStudentId();
 				statement.executeUpdate(
 						"INSERT INTO console_app_schema.students (student_id, group_id, first_name, last_name) VALUES ("
-								+ i + ", " + groupId + ", '" + student.firstName + "', '" + student.lastName + "')");
-			}
-		}
-
-		for (int studentId = 1; studentId <= 200; studentId++) {
-			int numCourses = 1 + new Random().nextInt(3);
-			for (int j = 0; j < numCourses; j++) {
-				int courseId = new Random().nextInt(courses.length) + 1;
-				statement.executeUpdate("INSERT INTO student_courses (student_id, course_id) VALUES (" + studentId
-						+ ", " + courseId + ")");
+								+ student_id + ", " + i + ", '" + student.firstName + "', '" + student.lastName + "')");
 			}
 		}
 
@@ -125,13 +121,13 @@ public class ConsoleApp {
 		}
 	}
 
-	private static int generateGroupId() {
+	private static int generateStudentId() {
 
 		synchronized (lock) {
 			Set<Integer> generatedIds = new HashSet<>();
 
 			while (true) {
-				int id = new Random().nextInt(10) + 1;
+				int id = new Random().nextInt(200) + 1;
 				if (!generatedIds.contains(id)) {
 					generatedIds.add(id);
 					return id;
@@ -155,6 +151,7 @@ public class ConsoleApp {
 
 	private static void generateStudentsWithSeparateNames(List<Student> students) {
 		List<String> usedNames = new ArrayList<>();
+		Map<String, List<Student>> groups = new HashMap<>();
 
 		for (int i = 0; i < 200; i++) {
 			String firstName = generateRandomName(usedNames, firstNames);
@@ -162,7 +159,25 @@ public class ConsoleApp {
 			Student student = new Student();
 			student.setFirstName(firstName);
 			student.setLastName(lastName);
-			students.add(student);
+
+			
+			int groupNumber = (int) (Math.random() * 30);
+	        List<Student> group = groups.get(String.valueOf(groupNumber)); 
+	        if (group == null) {
+	            group = new ArrayList<>();
+	            groups.put(String.valueOf(groupNumber), group); 
+	        }
+	        group.add(student);
+
+		
+			usedNames.add(firstName + lastName);
+		}
+
+	
+		for (Map.Entry<String, List<Student>> entry : groups.entrySet()) {
+			for (Student student : entry.getValue()) {
+				students.add(student);
+			}
 		}
 	}
 
