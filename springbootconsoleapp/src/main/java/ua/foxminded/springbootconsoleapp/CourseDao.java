@@ -7,6 +7,8 @@ public interface CourseDao {
 
 	Optional<Course> findById(int id);
 
+    Optional<Course> findByName(String name);
+
 	List<Course> findAll();
 
 	void create(Course course);

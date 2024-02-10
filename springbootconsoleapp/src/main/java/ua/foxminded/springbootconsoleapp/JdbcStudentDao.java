@@ -52,7 +52,7 @@ public class JdbcStudentDao implements StudentDao {
 	@Override
 	public void update(Student student) {
 		String sql = "UPDATE students SET group_id = ?, first_name = ?, last_name = ? WHERE student_id = ?";
-		jdbcTemplate.update(sql, student.getGroupId(), student.getFirstName(), student.getLastName(), student.getId());
+		jdbcTemplate.update(sql, student.getGroupId(), student.getFirstName(), student.getLastName());
 	}
 
 	@Override

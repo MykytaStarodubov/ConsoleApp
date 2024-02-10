@@ -7,6 +7,8 @@ public interface GroupDao {
 
 	Optional<Group> findById(int id);
 
+	Optional<Group> findByName(String name);
+
 	List<Group> findAll();
 
 	void create(Group group);

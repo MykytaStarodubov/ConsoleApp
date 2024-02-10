@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Repository
 public class JdbcGroupDao implements GroupDao {
@@ -24,14 +25,13 @@ public class JdbcGroupDao implements GroupDao {
 
 	@Override
 	public Optional<Group> findById(int id) {
-	    String sql = "SELECT * FROM groups WHERE group_id = ?";
-	    try {
-	        return Optional.of(jdbcTemplate.queryForObject(FIND_BY_NAME, groupRowMapper, id));
-	    } catch (EmptyResultDataAccessException e) {
-	        return Optional.empty();
-	    }
+		String sql = "SELECT * FROM groups WHERE group_id = ?";
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_BY_NAME, groupRowMapper, id));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
 	}
-
 
 	@Override
 	public List<Group> findAll() {
@@ -66,7 +66,6 @@ public class JdbcGroupDao implements GroupDao {
 		}
 	}
 
-	
 	private static class GroupRowMapper implements RowMapper<Group> {
 
 		@Override

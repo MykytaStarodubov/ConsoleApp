@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Repository
 public class JdbcCourseDao implements CourseDao {
@@ -22,15 +23,24 @@ public class JdbcCourseDao implements CourseDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	@Override
-	Optional<Course> findByName(String name) {
+	  @Override
+	    public Optional<Course> findByName(String name) {
 		try {
 			return Optional.of(jdbcTemplate.queryForObject(FIND_BY_NAME, courseRowMapper, courseRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return Optional.empty();
 		}
 	}
-
+	  
+	@Override
+	public Optional<Course> findById(int id) {
+	    String sql = "SELECT * FROM courses WHERE course_id = ?";
+	    try {
+	        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, courseRowMapper, id));
+	    } catch (EmptyResultDataAccessException e) {
+	        return Optional.empty();
+	    }
+	}
 	@Override
 	public List<Course> findAll() {
 		String sql = "SELECT * FROM courses";
@@ -53,15 +63,6 @@ public class JdbcCourseDao implements CourseDao {
 	public void deleteById(int id) {
 		String sql = "DELETE FROM courses WHERE course_id = ?";
 		jdbcTemplate.update(sql, id);
-	}
-
-	@Override
-	public Optional<Course> findByName(String name) {
-		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_BY_NAME, courseRowMapper, name));
-		} catch (EmptyResultDataAccessException e) {
-			return Optional.empty();
-		}
 	}
 
 	private static class CourseRowMapper implements RowMapper<Course> {
