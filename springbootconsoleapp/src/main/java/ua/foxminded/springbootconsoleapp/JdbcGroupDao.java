@@ -10,10 +10,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @Repository
 public class JdbcGroupDao implements GroupDao {
 
+	        
 	public static final String FIND_BY_NAME = "SELECT * FROM groups WHERE group_name = ?";
 
 	private final JdbcTemplate jdbcTemplate;
@@ -76,4 +80,5 @@ public class JdbcGroupDao implements GroupDao {
 			return group;
 		}
 	}
+	
 }

@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import javax.sql.DataSource;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class JdbcCourseDao implements CourseDao {
@@ -93,20 +95,15 @@ public class JdbcCourseDao implements CourseDao {
 		
 	}
 	
-	@SpringBootApplication(scanBasePackages = {"ua.foxminded.springbootconsoleapp", "ua.foxminded.springbootconsoleapp.config"})
-	public class SpringBootConsoleApp {
-	    public static void main(String[] args) {
-	        SpringApplication.run(SpringBootConsoleApp.class, args);
-	    }
-	}
-
+	
 	@Configuration
 	public class JdbcConfig {
 
-	    @Bean
-	    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-	        return new JdbcTemplate(dataSource);
-	    }
+	  @Bean
+	  public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+	    return new JdbcTemplate(dataSource);
+	  }
 	}
+
 
 }
