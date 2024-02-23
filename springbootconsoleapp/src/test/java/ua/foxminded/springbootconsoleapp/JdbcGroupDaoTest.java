@@ -6,15 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.utility.DockerImageName;
+import ua.foxminded.springbootconsoleapp.dao.GroupDao;
+import ua.foxminded.springbootconsoleapp.model.Group;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +31,7 @@ public class JdbcGroupDaoTest {
 
     @Test
     public void createGroupTest() {
-    	Group group = new Group(1, "Test Group"); 
+    	Group group = new Group(1, "Test Group");
 
         groupDao.create(group);
 
