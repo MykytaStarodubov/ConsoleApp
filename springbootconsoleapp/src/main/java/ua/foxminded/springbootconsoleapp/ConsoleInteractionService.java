@@ -2,6 +2,7 @@ package ua.foxminded.springbootconsoleapp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.foxminded.springbootconsoleapp.config.DatabaseConnection;
 import ua.foxminded.springbootconsoleapp.dao.CourseDao;
 import ua.foxminded.springbootconsoleapp.dao.GroupDao;
 import ua.foxminded.springbootconsoleapp.dao.StudentDao;
@@ -16,22 +17,19 @@ import java.util.Scanner;
 
 @Service
 public class ConsoleInteractionService {
-
-	public final Connection connection;
 	public final StudentDao studentDao;
 	public final GroupDao groupDao;
 	public final CourseDao courseDao;
 
 	@Autowired
-	public ConsoleInteractionService(Connection connection, StudentDao studentDao, GroupDao groupDao,
+	public ConsoleInteractionService(StudentDao studentDao, GroupDao groupDao,
 			CourseDao courseDao) {
-		this.connection = connection;
 		this.studentDao = studentDao;
 		this.groupDao = groupDao;
 		this.courseDao = courseDao;
 	}
 
-	public void ConsoleService(Connection connection) throws SQLException {
+	public void consoleService(Connection connection) throws SQLException {
 		Scanner scanner = new Scanner(System.in);
 
 		while (true) {

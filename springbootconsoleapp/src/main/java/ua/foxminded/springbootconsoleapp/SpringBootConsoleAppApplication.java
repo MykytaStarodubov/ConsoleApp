@@ -2,24 +2,20 @@ package ua.foxminded.springbootconsoleapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import javax.sql.DataSource;
 import org.springframework.context.ConfigurableApplicationContext;
-import ua.foxminded.springbootconsoleapp.ConsoleInteractionService;
-import org.springframework.context.annotation.Bean;
+import ua.foxminded.springbootconsoleapp.config.DatabaseConnection;
+
+import java.sql.SQLException;
 
 @SpringBootApplication
 public class SpringBootConsoleAppApplication {
 
    
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
         ConfigurableApplicationContext context = SpringApplication.run(SpringBootConsoleAppApplication.class, args);
         ConsoleInteractionService interactionService = context.getBean(ConsoleInteractionService.class);
-        interactionService.ConsoleInteractionService();
+        interactionService.consoleService(DatabaseConnection.getInstance().getConnection());
     }
-	
 
-    @Bean
-    public ConsoleInteractionService consoleInteractionService(Connection connection, StudentDao studentDao, GroupDao groupDao, CourseDao courseDao) {
-        return new ConsoleInteractionService(connection, studentDao, groupDao, courseDao);
-    }
+
 }
