@@ -1,129 +1,85 @@
 package ua.foxminded.springbootconsoleapp;
 
-import static org.assertj.core.api.Assertions.*;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import java.sql.ResultSet;
 
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ua.foxminded.springbootconsoleapp.dao.GroupDao;
+import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+import ua.foxminded.springbootconsoleapp.dao.impl.JdbcStudentDao;
 import ua.foxminded.springbootconsoleapp.model.Group;
+import ua.foxminded.springbootconsoleapp.dao.impl.JdbcGroupDao;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Collections;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+
+import static org.hamcrest.Matchers.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.RowMapper;
 
 
-public class JdbcGroupDaoTest {
+@ExtendWith(MockitoExtension.class)
+class JdbcGroupDaoTest {
 
-    @Mock
-    private GroupDao groupDao;
+	@Mock
+	private JdbcTemplate jdbcTemplate;
+	private GroupDao Dao;
 
-    @BeforeEach
-    public void setUp() {
-       
-        Mockito.reset(groupDao);
-    }
+	@InjectMocks
+	private JdbcGroupDao jdbcGroupDao;
 
-    @Test
-    public void createGroupTest() {
-    	Group group = new Group(1, "Test Group");
+	@Test
+	void testFindAll_ReturnsListOfGroups() {
+	  
+	    List<Group> expectedGroups = Arrays.asList(
+	            new Group(1, "Group1"),
+	            new Group(2, "Group2")
+	    );
 
-        groupDao.create(group);
+	
+	    String expectedQuery = "SELECT * FROM groups";
 
-        Mockito.verify(groupDao).create(group);
-    }
+	    when(jdbcTemplate.query(eq(expectedQuery), any(RowMapper.class))).thenReturn(expectedGroups);
+	  
+	    List<Group> actualGroups = jdbcGroupDao.findAll();
+	   
+	    assertEquals(expectedGroups, actualGroups);
+	    verify(jdbcTemplate).query(eq(expectedQuery), any(RowMapper.class));
+	}
 
-    @Test
-    public void findGroupByIdTest() {
-        Group group = new Group(1, "Test Group");
-        Mockito.when(groupDao.findById(1)).thenReturn(Optional.of(group));
 
-        Optional<Group> foundGroup = groupDao.findById(1);
+	@Test
+	void testCreate_ValidGroup_CreatesGroup() {
 
-        assertThat(foundGroup).isPresent();
-        assertThat(foundGroup.get()).isEqualTo(group);
+		Group group = new Group(1, "TestGroup");
+		jdbcGroupDao.create(group);
+		verify(jdbcTemplate).update(anyString(), eq(group.getName()));
+	}
 
-       
-        Mockito.verify(groupDao).findById(1);
-    }
+	@Test
+	void testUpdate_ValidGroup_UpdatesGroup() {
+		Group group = new Group(1, "UpdatedTestGroup");
 
-    @Test
-    public void findGroupByIdNotFoundTest() {
-        Mockito.when(groupDao.findById(1)).thenReturn(Optional.empty());
+		jdbcGroupDao.update(group);
+		verify(jdbcTemplate).update(anyString(), eq(group.getName()), eq(group.getId()));
+	}
 
-        Optional<Group> foundGroup = groupDao.findById(1);
-
-        assertThat(foundGroup).isEmpty();
-
-        Mockito.verify(groupDao).findById(1);
-    }
-
-    @Test
-    public void findByNameTest() {
-        Group group = new Group(1, "Test Group");
-        Mockito.when(groupDao.findByName("Test Group")).thenReturn(Optional.of(group));
-
-        Optional<Group> foundGroup = groupDao.findByName("Test Group");
-
-        assertThat(foundGroup).isPresent();
-        assertThat(foundGroup.get()).isEqualTo(group);
-
-        Mockito.verify(groupDao).findByName("Test Group");
-    }
-
-    @Test
-    public void findByNameNotFoundTest() {
-        Mockito.when(groupDao.findByName("Nonexistent")).thenReturn(Optional.empty());
-
-        Optional<Group> foundGroup = groupDao.findByName("Nonexistent");
-
-        assertThat(foundGroup).isEmpty();
-
-        Mockito.verify(groupDao).findByName("Nonexistent");
-    }
-
-    @Test
-    public void findAllGroupsTest() {
-        Group group1 = new Group(1, "Group 1");
-        Group group2 = new Group(2, "Group 2");
-        List<Group> groups = Arrays.asList(group1, group2);
-        Mockito.when(groupDao.findAll()).thenReturn(groups);
-
-        List<Group> foundGroups = groupDao.findAll();
-
-        assertThat(foundGroups).containsExactlyInAnyOrder(group1, group2);
-
-   
-        Mockito.verify(groupDao).findAll();
-    }
-
-    @Test
-    public void updateGroupTest() {
-        Group group = new Group(1, "Test Group");
-        Mockito.when(groupDao.findById(1)).thenReturn(Optional.of(group));
-
-        group.setName("Updated Name");
-        groupDao.update(group);
-
-   
-        Mockito.verify(groupDao).findById(1);
-        Mockito.verify(groupDao).update(group);
-    }
-
-    @Test
-    public void updateGroupNonExistentTest() {
-        Group group = new Group(1, "Test Group");
-        Mockito.when(groupDao.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> groupDao.update(group));
-
-   
-        Mockito.verify(groupDao).findById(1);
-     
-    }
 }

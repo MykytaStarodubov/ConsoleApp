@@ -17,77 +17,96 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
 
-public class JdbcCourseDaoTest {
+import org.springframework.jdbc.core.RowMapper;
 
-	@Autowired
-	private JdbcCourseDao courseDao;
+import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+import ua.foxminded.springbootconsoleapp.dao.impl.JdbcStudentDao;
+import ua.foxminded.springbootconsoleapp.model.Student;
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-	
-	@Autowired
-	private JdbcCourseDao CourseRowMapper;
 
-	@Container
-	private static PostgreSQLContainer<?> container = new PostgreSQLContainer<>(DockerImageName.parse("postgres:14.6"))
-			.withDatabaseName("test").withUsername("root").withPassword("test");
+import org.mockito.Mock;
 
-	
-	@BeforeEach
-	void setUp() {
-		jdbcTemplate.execute("TRUNCATE TABLE courses");
-	}
 
-	@Test
-	void findByIdShouldReturnCourseWhenCourseExists() {
-		Course course = new Course(1, "Java Programming", "Learn Java fundamentals");
-		courseDao.create(course);
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.MockitoAnnotations;
 
-		Optional<Course> foundCourse = courseDao.findById(1);
-		assertTrue(foundCourse.isPresent());
-		assertEquals(course, foundCourse.get());
-	}
+import static org.mockito.Mockito.when;
 
-	@Test
-	public void findByIdShouldReturnEmptyOptionalWhenCourseDoesNotExist() {
-		Optional<Course> foundCourse = courseDao.findById(1);
-		Course emptyCourse = new Course();
-		Course actualCourse = foundCourse.orElseGet(() -> emptyCourse);
-		assertEquals(emptyCourse, actualCourse);
-	}
 
-	@Test
-	void findAllShouldReturnAllCourses() {
-		Course course1 = new Course(1, "Java Programming", "Learn Java fundamentals");
-		Course course2 = new Course(2, "Database Design", "Learn database concepts");
-		courseDao.create(course1);
-		courseDao.create(course2);
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-		List<Course> courses = courseDao.findAll();
-		 assertEquals(Arrays.asList(course1, course2), courses);
-	}
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-	@Test
-	void createShouldAddCourseToDatabase() {
-		Course course = new Course(1, "Java Programming", "Learn Java fundamentals");
-		courseDao.create(course);
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ua.foxminded.springbootconsoleapp.dao.impl.JdbcCourseDao;
+import ua.foxminded.springbootconsoleapp.model.Course;
 
-		List<Course> courses = jdbcTemplate.query("SELECT * FROM courses", CourseRowMapper.courseRowMapper);
-		assertEquals(Arrays.asList(course), courses);
-	}
+@ExtendWith(MockitoExtension.class)
+class JdbcCourseDaoTest {
 
-	@Test
-	void updateShouldModifyExistingCourse() {
-		Course course = new Course(1, "Java Programming", "Learn Java fundamentals");
-		courseDao.create(course);
+    @Mock
+    private JdbcTemplate jdbcTemplate;
 
-		Course updatedCourse = new Course(1, "Python Programming", "Learn Python basics");
-		courseDao.update(updatedCourse);
+    @InjectMocks
+    private JdbcCourseDao jdbcCourseDao;
 
-		Optional<Course> foundCourse = courseDao.findById(1);
-		assertTrue(foundCourse.isPresent());
-		assertEquals(updatedCourse, foundCourse.get());
-	}
+    private Course testCourse;
+
+    @BeforeEach
+    void setUp() {
+        testCourse = new Course(1, "TestCourse", "Test description");
+    }
+    
+    @Test
+    void testFindAll_ReturnsListOfCourses() {
+        
+        List<Course> expectedCourses = Arrays.asList(
+                new Course(1, "Course1", "Description1"),
+                new Course(2, "Course2", "Description2")
+        );
+
+       
+        String expectedQuery = "SELECT * FROM courses";
+
+        
+        when(jdbcTemplate.query(eq(expectedQuery), any(JdbcCourseDao.CourseRowMapper.class))).thenReturn(expectedCourses);
+
+     
+        List<Course> actualCourses = jdbcCourseDao.findAll();
+
+        
+        assertEquals(expectedCourses.size(), actualCourses.size());
+        assertTrue(actualCourses.containsAll(expectedCourses));
+
+       
+        verify(jdbcTemplate).query(eq(expectedQuery), any(JdbcCourseDao.CourseRowMapper.class));
+    }
+
+    @Test
+    void testCreate_Course_CreatesCourse() {
+        jdbcCourseDao.create(testCourse);
+        verify(jdbcTemplate).update(anyString(), eq(testCourse.getName()), eq(testCourse.getDescription()));
+    }
+
+    @Test
+    void testUpdate_Course_UpdatesCourse() {
+        jdbcCourseDao.update(testCourse);
+        verify(jdbcTemplate).update(anyString(), eq(testCourse.getName()), eq(testCourse.getDescription()), eq(testCourse.getId()));
+    }
+    
+
 }

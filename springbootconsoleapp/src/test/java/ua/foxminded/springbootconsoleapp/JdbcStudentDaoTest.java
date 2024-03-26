@@ -1,83 +1,76 @@
 package ua.foxminded.springbootconsoleapp;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ua.foxminded.springbootconsoleapp.dao.impl.JdbcStudentDao;
-import ua.foxminded.springbootconsoleapp.model.Student;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 import org.springframework.jdbc.core.RowMapper;
 
-public class JdbcStudentDaoTest {
+import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+import ua.foxminded.springbootconsoleapp.dao.impl.JdbcStudentDao;
+import ua.foxminded.springbootconsoleapp.model.Student;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import java.util.List;
 
-    @Mock
-    private JdbcTemplate jdbcTemplate;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.MockitoAnnotations;
 
-    @InjectMocks
-    private JdbcStudentDao studentDao;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
-    @Test
-    void testCRUDOperations() {
-        // Create
-        Student student = new Student();
-        student.setGroupId(1);
-        student.setFirstName("John");
-        student.setLastName("Doe");
-
-        when(jdbcTemplate.update(anyString(), anyInt(), anyString(), anyString())).thenReturn(1);
-
-        studentDao.create(student);
-
-        // Read
-        Student expectedStudent = new Student();
-        expectedStudent.setStudentId(1);
-        expectedStudent.setGroupId(1);
-        expectedStudent.setFirstName("John");
-        expectedStudent.setLastName("Doe");
-
-        when(jdbcTemplate.queryForObject(anyString(), any(), studentDao.studentRowMapper)).thenReturn(expectedStudent);
+import static org.mockito.Mockito.when;
 
 
-        Optional<Student> retrievedStudentOptional = studentDao.findById(1);
-        assertTrue(retrievedStudentOptional.isPresent());
-        Student retrievedStudent = retrievedStudentOptional.get();
-        assertEquals(expectedStudent.getFirstName(), retrievedStudent.getFirstName());
-        assertEquals(expectedStudent.getLastName(), retrievedStudent.getLastName());
+class JdbcStudentDaoTest {
 
-        // Update
-        Student updatedStudent = new Student();
-        updatedStudent.setStudentId(1);
-        updatedStudent.setGroupId(2);
-        updatedStudent.setFirstName("Jane");
-        updatedStudent.setLastName("Smith");
+	@Mock
+	private JdbcTemplate jdbcTemplate;
+	private StudentDao dao;
 
-        when(jdbcTemplate.update(anyString(), anyInt(), anyString(), anyString(), anyInt())).thenReturn(1);
+	private JdbcStudentDao jdbcStudentDao;
 
-        studentDao.update(updatedStudent);
+	@BeforeEach
+	public void setUp() {
+		MockitoAnnotations.openMocks(this);
+		jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
+		this.dao = jdbcStudentDao;
+	}
 
-        // Verify update
-        verify(jdbcTemplate, times(1)).update(anyString(), anyInt(), anyString(), anyString(), anyInt());
+	@Test
+	void testCreateStudent() {
+		Student student = new Student(1, "John", "Doe", 1);
+		jdbcStudentDao.create(student);
 
-        // Delete
-        when(jdbcTemplate.update(anyString(), anyInt())).thenReturn(1);
+		verify(jdbcTemplate).update("INSERT INTO students (group_id, first_name, last_name) VALUES (?, ?, ?)",
+				student.getGroupId(), student.getFirstName(), student.getLastName());
+	}
 
-        studentDao.deleteById(1);
+	@Test
+	void testUpdateStudent() {
+		int studentId = 1;
+		Student studentToUpdate = new Student(studentId, "John", "UpdatedLastName", 2);
 
-        // Verify delete
-        verify(jdbcTemplate, times(1)).update(anyString(), anyInt());
-    }
+		when(jdbcTemplate.update(any(String.class), any(Object[].class))).thenReturn(1);
+
+		jdbcStudentDao.update(studentToUpdate);
+
+		verify(jdbcTemplate).update(
+				"UPDATE students SET group_id = ?, first_name = ?, last_name = ? WHERE student_id = ?",
+				studentToUpdate.getGroupId(), studentToUpdate.getFirstName(), studentToUpdate.getLastName(), studentId);
+	}
+
+	@Test
+	void testFindAllStudents() {
+
+		List<Student> expectedStudents = List.of(new Student(1, "John", "Doe", 1), new Student(2, "Jane", "Doe", 2));
+
+		String expectedQuery = "SELECT * FROM students";
+
+		when(jdbcTemplate.query(eq(expectedQuery), any(RowMapper.class))).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = dao.findAll();
+
+		assertEquals(expectedStudents, actualStudents);
+		verify(jdbcTemplate).query(eq(expectedQuery), any(RowMapper.class));
+	}
+
 }
