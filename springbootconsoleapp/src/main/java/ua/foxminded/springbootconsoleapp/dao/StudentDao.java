@@ -1,9 +1,12 @@
 package ua.foxminded.springbootconsoleapp.dao;
 
 import ua.foxminded.springbootconsoleapp.model.Student;
+import ua.foxminded.springbootconsoleapp.model.Course; 
+
 
 import java.util.List;
 import java.util.Optional;
+
 
 public interface StudentDao {
     Optional<Student> findById(int id);
@@ -17,5 +20,6 @@ public interface StudentDao {
     void update(Student student);
 
     void deleteById(int id);
-
+    
+    
 }
