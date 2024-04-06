@@ -16,6 +16,18 @@ public class Student {
 		this.groupId = groupId;
 	}
 
+	public Student(int studentId, String name, int groupId) {
+		this.studentId = studentId;
+		String[] nameParts = name.split(" ");
+		this.firstName = nameParts[0];
+		if (nameParts.length > 1) {
+			this.lastName = nameParts[1];
+		} else {
+			this.lastName = "";
+		}
+		this.groupId = groupId;
+	}
+
 	public Student() {
 
 	}

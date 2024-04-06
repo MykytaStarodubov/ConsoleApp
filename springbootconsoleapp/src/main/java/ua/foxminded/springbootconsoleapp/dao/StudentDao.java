@@ -1,25 +1,23 @@
 package ua.foxminded.springbootconsoleapp.dao;
 
 import ua.foxminded.springbootconsoleapp.model.Student;
-import ua.foxminded.springbootconsoleapp.model.Course; 
-
+import ua.foxminded.springbootconsoleapp.model.Course;
 
 import java.util.List;
 import java.util.Optional;
 
-
 public interface StudentDao {
-    Optional<Student> findById(int id);
+	
+	Optional<Student> findById(int id);
 
-    List<Student> findAll();
+	List<Student> findAll();
 
-    List<Student> findByGroupId(int groupId);
+	List<Student> findByGroupId(int groupId);
 
-    void create(Student student);
+	void create(Student student);
 
-    void update(Student student);
+	void update(Student student);
 
-    void deleteById(int id);
-    
-    
+	void deleteById(int id);
+
 }

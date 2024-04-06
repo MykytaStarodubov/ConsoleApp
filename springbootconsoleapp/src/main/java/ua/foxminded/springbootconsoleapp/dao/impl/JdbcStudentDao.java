@@ -67,7 +67,7 @@ public class JdbcStudentDao implements StudentDao {
 
         @Override
         public Student mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Student student = new Student();
+        	Student student = new Student(1, "John", "Doe", 1);
             student.setStudentId(rs.getInt("student_id"));
             student.setGroupId(rs.getInt("group_id"));
             student.setFirstName(rs.getString("first_name"));

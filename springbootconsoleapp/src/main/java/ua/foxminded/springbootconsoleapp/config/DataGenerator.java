@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.springbootconsoleapp.model.Course;
 import ua.foxminded.springbootconsoleapp.model.Group;
 import ua.foxminded.springbootconsoleapp.model.Student;
-import ua.foxminded.springbootconsoleapp.service.SchoolService;
+import ua.foxminded.springbootconsoleapp.service.CourseService;
+import ua.foxminded.springbootconsoleapp.service.GroupService;
+import ua.foxminded.springbootconsoleapp.service.StudentService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +18,20 @@ import java.util.Random;
 @Component
 public class DataGenerator implements ApplicationRunner {
 
-    private final SchoolService schoolService;
+    private final GroupService groupService;
+    private final CourseService courseService;
+    private final StudentService studentService;
 
     @Autowired
-    public DataGenerator(SchoolService schoolService) {
-        this.schoolService = schoolService;
+    public DataGenerator(GroupService groupService, CourseService courseService, StudentService studentService) {
+        this.groupService = groupService;
+        this.courseService = courseService;
+        this.studentService = studentService;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        if (schoolService.findAllGroups().isEmpty() && schoolService.findAllCourses().isEmpty() && schoolService.findAllStudents().isEmpty()) {
+        if (groupService.findAllGroups().isEmpty() && courseService.findAllCourses().isEmpty() && studentService.findAllStudents().isEmpty()) {
             generateData();
         }
     }
@@ -44,7 +50,7 @@ public class DataGenerator implements ApplicationRunner {
             String groupName = generateGroupName(random);
             Group group = new Group();
             group.setName(groupName);
-            schoolService.addGroup(group);
+            groupService.addGroup(group);
         }
     }
 
@@ -62,7 +68,7 @@ public class DataGenerator implements ApplicationRunner {
             Course course = new Course();
             course.setName(courseName);
             course.setDescription("Description for " + courseName);
-            schoolService.addCourse(course);
+            courseService.addCourse(course);
         }
     }
 
@@ -78,7 +84,7 @@ public class DataGenerator implements ApplicationRunner {
             Student student = new Student();
             student.setFirstName(firstNames.get(random.nextInt(firstNames.size())));
             student.setLastName(lastNames.get(random.nextInt(lastNames.size())));
-            schoolService.addStudent(student);
+            studentService.addStudent(student);
         }
     }
 
@@ -91,19 +97,19 @@ public class DataGenerator implements ApplicationRunner {
     }
 
     private void assignStudentsToGroups() {
-        List<Group> groups = schoolService.findAllGroups();
-        List<Student> students = schoolService.findAllStudents();
+        List<Group> groups = groupService.findAllGroups();
+        List<Student> students = studentService.findAllStudents();
         Random random = new Random();
         for (Student student : students) {
             Group group = groups.get(random.nextInt(groups.size()));
             student.setGroupId(group.getId());
-            schoolService.updateStudent(student);
+            studentService.updateStudent(student);
         }
     }
 
     private void assignCoursesToStudents() {
-        List<Student> students = schoolService.findAllStudents();
-        List<Course> courses = schoolService.findAllCourses();
+        List<Student> students = studentService.findAllStudents();
+        List<Course> courses = courseService.findAllCourses();
         Random random = new Random();
         for (Student student : students) {
             int coursesCount = random.nextInt(3) + 1;
@@ -112,8 +118,7 @@ public class DataGenerator implements ApplicationRunner {
                 studentCourses.add(courses.get(random.nextInt(courses.size())));
             }
             student.setCourses(studentCourses);
-            schoolService.updateStudent(student);
+            studentService.updateStudent(student);
         }
     }
 }
-
