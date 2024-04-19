@@ -7,16 +7,11 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import ua.foxminded.springbootconsoleapp.dao.GroupDao;
-import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+import ua.foxminded.springbootconsoleapp.model.Group;
+import ua.foxminded.springbootconsoleapp.model.Student;
 import ua.foxminded.springbootconsoleapp.service.CourseService;
 import ua.foxminded.springbootconsoleapp.service.GroupService;
 import ua.foxminded.springbootconsoleapp.service.StudentService;
-import ua.foxminded.springbootconsoleapp.model.Course;
-import ua.foxminded.springbootconsoleapp.model.Student;
-import ua.foxminded.springbootconsoleapp.model.Group;
 
 import java.util.List;
 import java.util.Scanner;
