@@ -1,76 +1,72 @@
 package ua.foxminded.springbootconsoleapp;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
-import ua.foxminded.springbootconsoleapp.dao.impl.JPACourseDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 import ua.foxminded.springbootconsoleapp.model.Course;
 
-import jakarta.persistence.*;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import ua.foxminded.springbootconsoleapp.dao.impl.JPACourseDao;
-import ua.foxminded.springbootconsoleapp.dao.impl.JPAGroupDao;
-import ua.foxminded.springbootconsoleapp.dao.impl.JPAStudentDao;
-import ua.foxminded.springbootconsoleapp.model.Course;
-import ua.foxminded.springbootconsoleapp.model.Group;
-import ua.foxminded.springbootconsoleapp.model.Student;
-
-@DataJpaTest
-class JPACourseDaoTest {
+@SpringBootTest(properties = {"spring.config.location=classpath:/application-test.yaml"})
+public class JPACourseDaoTest {
 
     @Autowired
-    private JPACourseDao jpaCourseDao;
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    private CourseRepository courseRepository;
 
     @Test
     void testFindAll_ReturnsListOfCourses() {
-        List<Course> expectedCourses = Arrays.asList(
+        List<Course> expectedCourses = List.of(
                 new Course(1, "Course1", "Description1"),
                 new Course(2, "Course2", "Description2")
         );
 
-        List<Course> actualCourses = jpaCourseDao.findAll();
+        courseRepository.saveAll(expectedCourses);
 
-        assertEquals(expectedCourses, actualCourses);
+        List<Course> actualCourses = courseRepository.findAll();
+
+        assertEquals(expectedCourses.size(), actualCourses.size());
+        expectedCourses.forEach(expectedCourse -> assertContainsCourse(actualCourses, expectedCourse));
     }
 
     @Test
     void testCreate_Course_CreatesCourse() {
         Course testCourse = new Course(1, "TestCourse", "Test description");
-        jpaCourseDao.create(testCourse);
 
-        entityManager.flush();
+        courseRepository.save(testCourse);
 
-        Course createdCourse = entityManager.find(Course.class, testCourse.getId());
+        Course createdCourse = courseRepository.findById(testCourse.getId()).orElse(null);
+
+        assertNotNull(createdCourse);
         assertEquals(testCourse, createdCourse);
     }
 
     @Test
     void testUpdate_Course_UpdatesCourse() {
         Course testCourse = new Course(1, "TestCourse", "Updated description");
-        jpaCourseDao.update(testCourse);
 
-        entityManager.flush();
+        courseRepository.save(testCourse);
 
-        Course updatedCourse = entityManager.find(Course.class, testCourse.getId());
+        testCourse.setDescription("New updated description");
+
+        courseRepository.save(testCourse);
+
+        Course updatedCourse = courseRepository.findById(testCourse.getId()).orElse(null);
+
+        assertNotNull(updatedCourse);
         assertEquals(testCourse, updatedCourse);
     }
 
+    private void assertContainsCourse(List<Course> courses, Course courseToFind) {
+        for (Course course : courses) {
+            if (course.getId() == courseToFind.getId()) {
+                assertEquals(courseToFind, course);
+                return;
+            }
+        }
+        throw new AssertionError("Course not found: " + courseToFind);
+    }
 }
-

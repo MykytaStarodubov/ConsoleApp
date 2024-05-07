@@ -3,7 +3,7 @@ package ua.foxminded.springbootconsoleapp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.foxminded.springbootconsoleapp.config.DatabaseConnection;
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 import ua.foxminded.springbootconsoleapp.dao.GroupDao;
 import ua.foxminded.springbootconsoleapp.dao.StudentDao;
 
@@ -19,14 +19,14 @@ import java.util.Scanner;
 public class ConsoleInteractionService {
 	public final StudentDao studentDao;
 	public final GroupDao groupDao;
-	public final CourseDao courseDao;
+	public final CourseRepository courseRepository;
 
 	@Autowired
 	public ConsoleInteractionService(StudentDao studentDao, GroupDao groupDao,
-			CourseDao courseDao) {
+			CourseRepository courseRepository) {
 		this.studentDao = studentDao;
 		this.groupDao = groupDao;
-		this.courseDao = courseDao;
+		this.courseRepository = courseRepository;
 	}
 
 	public void consoleService(Connection connection) throws SQLException {

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 import ua.foxminded.springbootconsoleapp.dao.GroupDao;
 import ua.foxminded.springbootconsoleapp.dao.StudentDao;
 import ua.foxminded.springbootconsoleapp.model.Course;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 class StudentServicelmplTest {
 
 	@Mock
-	private CourseDao courseDao;
+	private CourseRepository courseRepository;
 
 	@Mock
 	private GroupDao groupDao;
@@ -46,7 +46,7 @@ class StudentServicelmplTest {
 		Student student = new Student(1, "John", "Doe", 1);
 		List<Student> students = Collections.singletonList(student);
 
-		when(courseDao.findByName(courseName))
+		when(courseRepository.findByName(courseName))
 				.thenReturn(Optional.of(new Course(courseId, courseName, "Math Description")));
 		when(studentDao.findByGroupId(courseId)).thenReturn(students);
 
@@ -59,7 +59,7 @@ class StudentServicelmplTest {
 	void findStudentsByCourseName_ShouldThrowException_WhenCourseDoesNotExist() {
 		String courseName = "Invalid Course";
 
-		when(courseDao.findByName(courseName)).thenReturn(Optional.empty());
+		when(courseRepository.findByName(courseName)).thenReturn(Optional.empty());
 
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
 			studentService.findStudentsByCourseName(courseName);

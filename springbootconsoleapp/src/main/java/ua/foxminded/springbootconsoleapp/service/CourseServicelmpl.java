@@ -1,7 +1,7 @@
 package ua.foxminded.springbootconsoleapp.service;
 
 import org.springframework.stereotype.Service;
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 
 import ua.foxminded.springbootconsoleapp.model.Course;
 
@@ -10,20 +10,20 @@ import java.util.List;
 @Service
 public class CourseServicelmpl implements CourseService {
 
-	private final CourseDao courseDao;
+	private final CourseRepository courseRepository;
 
-	public CourseServicelmpl(CourseDao courseDao) {
-		this.courseDao = courseDao;
+	public CourseServicelmpl(CourseRepository courseRepository) {
+		this.courseRepository = courseRepository;
 
 	}
 
 	@Override
 	public List<Course> findAllCourses() {
-		return courseDao.findAll();
+		return courseRepository.findAll();
 	}
 
 	@Override
 	public void addCourse(Course course) {
-		courseDao.create(course);
+		courseRepository.create(course);
 	}
 }

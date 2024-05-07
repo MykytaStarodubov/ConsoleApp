@@ -1,7 +1,7 @@
 package ua.foxminded.springbootconsoleapp.dao.impl;
 
 import org.springframework.stereotype.Repository;
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 import ua.foxminded.springbootconsoleapp.model.Course;
 
 import jakarta.persistence.*;
@@ -11,24 +11,22 @@ import java.util.Optional;
 
 @Repository
 @Transactional
-public class JPACourseDao implements CourseDao {
+public abstract class JPACourseDao implements CourseRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     public Optional<Course> findByName(String name) {
-        try {
-            return Optional.ofNullable(entityManager.createQuery("SELECT c FROM Course c WHERE c.courseName = :name", Course.class)
-                    .setParameter("name", name)
-                    .getSingleResult());
-        } catch (NoResultException ex) {
-            return Optional.empty();
-        }
+        return entityManager.createQuery("SELECT c FROM Course c WHERE c.courseName = :name", Course.class)
+                .setParameter("name", name)
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
     @Override
-    public Optional<Course> findById(int id) {
+    public Optional<Course> findById(Integer id) {
         return Optional.ofNullable(entityManager.find(Course.class, id));
     }
 
@@ -56,3 +54,4 @@ public class JPACourseDao implements CourseDao {
         }
     }
 }
+

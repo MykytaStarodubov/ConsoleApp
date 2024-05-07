@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 import ua.foxminded.springbootconsoleapp.model.Course;
 import ua.foxminded.springbootconsoleapp.service.CourseServicelmpl;
 
@@ -20,7 +20,7 @@ import ua.foxminded.springbootconsoleapp.service.CourseServicelmpl;
 public class CourseServicelmplTest {
 
 	@Mock
-	private CourseDao courseDaoMock;
+	private CourseRepository courseDaoMock;
 
 	@InjectMocks
 	private CourseServicelmpl courseService;

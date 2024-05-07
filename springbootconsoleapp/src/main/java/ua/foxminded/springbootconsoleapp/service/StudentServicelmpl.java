@@ -1,31 +1,32 @@
 package ua.foxminded.springbootconsoleapp.service;
 
 import org.springframework.stereotype.Service;
-import ua.foxminded.springbootconsoleapp.dao.CourseDao;
+import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
 import ua.foxminded.springbootconsoleapp.dao.GroupDao;
 import ua.foxminded.springbootconsoleapp.dao.StudentDao;
 import ua.foxminded.springbootconsoleapp.model.Course;
 import ua.foxminded.springbootconsoleapp.model.Student;
+import java.sql.SQLException;
 
 import java.util.List;
 
 @Service
 public class StudentServicelmpl implements StudentService {
 
-	private final CourseDao courseDao;
+	private final CourseRepository courseRepository;
 	private final GroupDao groupDao;
 	private final StudentDao studentDao;
 	
 
-	public StudentServicelmpl(CourseDao courseDao, GroupDao groupDao, StudentDao studentDao) {
-	    this.courseDao = courseDao;
+	public StudentServicelmpl(CourseRepository courseRepository, GroupDao groupDao, StudentDao studentDao) {
+	    this.courseRepository = courseRepository;
 	    this.groupDao = groupDao;
 	    this.studentDao = studentDao;
 	  }
 	  
 	@Override
 	public List<Student> findStudentsByCourseName(String courseName) {
-		Course course = courseDao.findByName(courseName)
+		Course course = courseRepository.findByName(courseName)
 				.orElseThrow(() -> new IllegalArgumentException("Course not found"));
 		return studentDao.findByGroupId(course.getId());
 	}
