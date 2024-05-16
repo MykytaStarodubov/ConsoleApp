@@ -1,8 +1,15 @@
 package ua.foxminded.springbootconsoleapp.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "group")
 public class Group {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	@Column
 	public String name;
 
 	public Group(int id, String name) {

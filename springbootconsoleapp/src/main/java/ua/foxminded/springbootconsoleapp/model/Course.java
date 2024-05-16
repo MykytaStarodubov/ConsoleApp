@@ -1,9 +1,17 @@
 package ua.foxminded.springbootconsoleapp.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "course")
 public class Course {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "courseName")
     private String name;
+    @Column
     private String description;
 
     public Course(int id, String name, String description) {

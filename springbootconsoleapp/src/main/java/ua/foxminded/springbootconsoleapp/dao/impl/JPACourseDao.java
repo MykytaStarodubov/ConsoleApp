@@ -18,7 +18,7 @@ public abstract class JPACourseDao implements CourseRepository {
 
     @Override
     public Optional<Course> findByName(String name) {
-        return entityManager.createQuery("SELECT c FROM Course c WHERE c.courseName = :name", Course.class)
+        return entityManager.createQuery("SELECT c FROM Course c WHERE c.name = :name", Course.class)
                 .setParameter("name", name)
                 .getResultList()
                 .stream()
