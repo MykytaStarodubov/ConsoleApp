@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
 import ua.foxminded.springbootconsoleapp.model.Course;
 import java.util.Arrays;
 
@@ -103,11 +105,11 @@ class JPACourseDaoTest {
         verify(entityManager, never()).remove(any(Course.class));
     }
 
-    // Concrete subclass of JPACourseDao for testing
     private static class JPACourseDaoImpl extends JPACourseDao {
         @Override
         public Course getReferenceById(Integer id) {
-            return null; // or provide a mock implementation
+            return null; 
         }
     }
+    
 }

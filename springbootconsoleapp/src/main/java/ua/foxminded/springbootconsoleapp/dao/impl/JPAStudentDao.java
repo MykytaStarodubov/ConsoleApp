@@ -1,7 +1,7 @@
 package ua.foxminded.springbootconsoleapp.dao.impl;
 
 import org.springframework.stereotype.Repository;
-import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+import ua.foxminded.springbootconsoleapp.dao.StudentRepository;
 import ua.foxminded.springbootconsoleapp.model.Student;
 
 
@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 @Transactional
-public class JPAStudentDao implements StudentDao {
+public class JPAStudentDao implements StudentRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
