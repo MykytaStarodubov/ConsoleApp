@@ -2,7 +2,7 @@ package ua.foxminded.springbootconsoleapp.service;
 
 import org.springframework.stereotype.Service;
 import ua.foxminded.springbootconsoleapp.dao.GroupRepository;
-import ua.foxminded.springbootconsoleapp.dao.StudentRepository;
+import ua.foxminded.springbootconsoleapp.dao.*;
 import ua.foxminded.springbootconsoleapp.model.Group;
 
 

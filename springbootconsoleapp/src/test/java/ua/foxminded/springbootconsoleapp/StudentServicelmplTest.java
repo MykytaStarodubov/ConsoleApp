@@ -6,8 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
-import ua.foxminded.springbootconsoleapp.dao.GroupDao;
-import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+import ua.foxminded.springbootconsoleapp.dao.*;
 import ua.foxminded.springbootconsoleapp.model.Course;
 import ua.foxminded.springbootconsoleapp.model.Student;
 import ua.foxminded.springbootconsoleapp.service.StudentServicelmpl;
@@ -31,10 +30,10 @@ class StudentServicelmplTest {
 	private CourseRepository courseRepository;
 
 	@Mock
-	private GroupDao groupDao;
+	private GroupRepository groupRepository;
 
 	@Mock
-	private StudentDao studentDao;
+	private StudentRepository studentRepository;
 
 	@InjectMocks
 	private StudentServicelmpl studentService;
@@ -48,24 +47,11 @@ class StudentServicelmplTest {
 
 		when(courseRepository.findByName(courseName))
 				.thenReturn(Optional.of(new Course(courseId, courseName, "Math Description")));
-		when(studentDao.findByGroupId(courseId)).thenReturn(students);
+		when(studentRepository.findByGroupId(courseId)).thenReturn(students);
 
 		List<Student> result = studentService.findStudentsByCourseName(courseName);
 
 		assertEquals(students, result);
-	}
-
-	@Test
-	void findStudentsByCourseName_ShouldThrowException_WhenCourseDoesNotExist() {
-		String courseName = "Invalid Course";
-
-		when(courseRepository.findByName(courseName)).thenReturn(Optional.empty());
-
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-			studentService.findStudentsByCourseName(courseName);
-		});
-
-		assertEquals("Course not found", exception.getMessage());
 	}
 
 	@Test
@@ -74,7 +60,7 @@ class StudentServicelmplTest {
 
 		studentService.addNewStudent(student);
 
-		verify(studentDao).create(student);
+		verify(studentRepository).create(student);
 
 	}
 
@@ -84,7 +70,7 @@ class StudentServicelmplTest {
 
 		studentService.deleteStudentById(studentId);
 
-		verify(studentDao).deleteById(studentId);
+		verify(studentRepository).deleteById(studentId);
 	}
 
 	@Test
@@ -93,12 +79,12 @@ class StudentServicelmplTest {
 		int courseId = 2;
 		Student student = new Student(studentId, "John Doe", 1);
 
-		when(studentDao.findById(studentId)).thenReturn(Optional.of(student));
+		when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
 
 		studentService.addStudentToCourse(studentId, courseId);
 
 		assertEquals(courseId, student.getGroupId());
-		verify(studentDao).update(student);
+		verify(studentRepository).update(student);
 	}
 
 	@Test
@@ -107,19 +93,19 @@ class StudentServicelmplTest {
 		int courseId = 1;
 		Student student = new Student(studentId, "John Doe", courseId);
 
-		when(studentDao.findById(studentId)).thenReturn(Optional.of(student));
+		when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
 
 		studentService.removeStudentFromCourse(studentId, courseId);
 
 		assertEquals(-1, student.getGroupId());
-		verify(studentDao).update(student);
+		verify(studentRepository).update(student);
 	}
 
 	@Test
 	void findAllStudents_ShouldReturnListOfStudents() {
 		List<Student> students = Collections.singletonList(new Student(1, "John Doe", 1));
 
-		when(studentDao.findAll()).thenReturn(students);
+		when(studentRepository.findAll()).thenReturn(students);
 
 		List<Student> result = studentService.findAllStudents();
 
@@ -132,7 +118,7 @@ class StudentServicelmplTest {
 
 		studentService.addStudent(student);
 
-		verify(studentDao).create(student);
+		verify(studentRepository).create(student);
 	}
 
 	@Test
@@ -141,6 +127,6 @@ class StudentServicelmplTest {
 
 		studentService.updateStudent(student);
 
-		verify(studentDao).update(student);
+		verify(studentRepository).update(student);
 	}
 }

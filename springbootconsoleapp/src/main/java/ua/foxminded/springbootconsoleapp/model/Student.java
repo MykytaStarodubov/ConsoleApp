@@ -3,6 +3,7 @@ package ua.foxminded.springbootconsoleapp.model;
 import java.util.List;
 import jakarta.persistence.*;
 
+
 @Entity
 @Table(name = "students")
 public class Student {
@@ -34,16 +35,20 @@ public class Student {
 
 	public Student(int studentId, String name, int groupId) {
 		this.studentId = studentId;
-		String[] nameParts = name.split(" ");
-		this.firstName = nameParts[0];
-		if (nameParts.length > 1) {
-			this.lastName = nameParts[1];
-		} else {
-			this.lastName = "";
-		}
+		parseName(name);
 		this.groupId = groupId;
 	}
-
+	
+	private void parseName(String name) {
+		  String[] nameParts = name.split(" ");
+		  this.firstName = nameParts[0];
+		  if (nameParts.length > 1) {
+		    this.lastName = nameParts[1];
+		  } else {
+		    this.lastName = "";
+		  }
+		}
+	
 	public Student() {
 
 	}

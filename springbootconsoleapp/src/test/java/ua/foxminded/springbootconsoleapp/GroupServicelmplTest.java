@@ -12,8 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ua.foxminded.springbootconsoleapp.dao.GroupDao;
-import ua.foxminded.springbootconsoleapp.dao.StudentDao;
+
+import ua.foxminded.springbootconsoleapp.dao.*;
 import ua.foxminded.springbootconsoleapp.model.Group;
 import ua.foxminded.springbootconsoleapp.model.Student;
 import ua.foxminded.springbootconsoleapp.service.GroupServicelmpl;
@@ -21,10 +21,10 @@ import ua.foxminded.springbootconsoleapp.service.GroupServicelmpl;
 @ExtendWith(MockitoExtension.class)
 public class GroupServicelmplTest {
 	@Mock
-	private GroupDao groupDaoMock;
+	private GroupRepository groupRepositoryMock;
 
 	@Mock
-	private StudentDao studentDaoMock;
+	private StudentRepository studentRepositoryMock;
 
 	@InjectMocks
 	private GroupServicelmpl groupService;
@@ -42,9 +42,9 @@ public class GroupServicelmplTest {
 
 		List<Student> studentsGroup2 = new ArrayList<>();
 
-		when(groupDaoMock.findAll()).thenReturn(groups);
-		when(studentDaoMock.findByGroupId(1)).thenReturn(studentsGroup1);
-		when(studentDaoMock.findByGroupId(2)).thenReturn(studentsGroup2);
+		when(groupRepositoryMock.findAll()).thenReturn(groups);
+		when(studentRepositoryMock.findByGroupId(1)).thenReturn(studentsGroup1);
+		when(studentRepositoryMock.findByGroupId(2)).thenReturn(studentsGroup2);
 
 		List<Group> result = groupService.findGroupsWithLessOrEqualsStudentCount(1);
 
@@ -60,7 +60,7 @@ public class GroupServicelmplTest {
 		groups.add(new Group(1, "Group 1"));
 		groups.add(new Group(2, "Group 2"));
 
-		when(groupDaoMock.findAll()).thenReturn(groups);
+		when(groupRepositoryMock.findAll()).thenReturn(groups);
 
 		List<Group> result = groupService.findAllGroups();
 
@@ -76,6 +76,6 @@ public class GroupServicelmplTest {
 
 		groupService.addGroup(group);
 
-		verify(groupDaoMock).create(group);
+		verify(groupRepositoryMock).create(group);
 	}
 }

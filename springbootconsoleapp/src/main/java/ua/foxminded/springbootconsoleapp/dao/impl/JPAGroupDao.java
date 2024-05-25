@@ -3,6 +3,7 @@ package ua.foxminded.springbootconsoleapp.dao.impl;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.springbootconsoleapp.dao.GroupRepository;
 import ua.foxminded.springbootconsoleapp.model.Group;
+import ua.foxminded.springbootconsoleapp.model.*;
 
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Transactional
 public abstract class JPAGroupDao implements GroupRepository {
 
 	@PersistenceContext
@@ -23,29 +23,32 @@ public abstract class JPAGroupDao implements GroupRepository {
 
 	@Override
 	public Optional<Group> findByName(String name) {
-		return entityManager.createQuery("SELECT g FROM Group g WHERE g.name = :name", Group.class)
+		return entityManager.createQuery(SqlQueriesUtil.SELECT_FROM_GROUP_NAME, Group.class)
 				.setParameter("name", name).getResultList().stream().findFirst();
 
 	}
 
 	@Override
 	public List<Group> findAll() {
-		return entityManager.createQuery("SELECT g FROM Group g", Group.class).getResultList();
+		return entityManager.createQuery(SqlQueriesUtil.SELECT_FROM_GROUP, Group.class).getResultList();
 	}
-
+	
+	@Transactional
 	@Override
 	public void create(Group group) {
 		entityManager.persist(group);
 	}
-
+	
+	@Transactional
 	@Override
 	public void update(Group group) {
 		entityManager.merge(group);
 	}
-
+	
+	@Transactional
 	@Override
 	public void deleteById(int id) {
-		entityManager.createQuery("DELETE FROM Group g WHERE g.id = :id").setParameter("id", id).executeUpdate();
+		entityManager.createQuery(SqlQueriesUtil.DELETE_FROM_GROUP_ID, Group.class).setParameter("id", id).executeUpdate();
 	}
 	
 	public abstract Group getReferenceById(Integer id);

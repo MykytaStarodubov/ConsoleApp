@@ -2,11 +2,9 @@ package ua.foxminded.springbootconsoleapp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ua.foxminded.springbootconsoleapp.config.DatabaseConnection;
 import ua.foxminded.springbootconsoleapp.dao.CourseRepository;
-import ua.foxminded.springbootconsoleapp.dao.GroupDao;
-import ua.foxminded.springbootconsoleapp.dao.StudentDao;
-
+import ua.foxminded.springbootconsoleapp.dao.GroupRepository;
+import ua.foxminded.springbootconsoleapp.dao.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,18 +12,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
-
 @Service
 public class ConsoleInteractionService {
-	public final StudentDao studentDao;
-	public final GroupDao groupDao;
+	public final StudentRepository studentRepository;
+	public final GroupRepository groupRepository;
 	public final CourseRepository courseRepository;
 
 	@Autowired
-	public ConsoleInteractionService(StudentDao studentDao, GroupDao groupDao,
+	public ConsoleInteractionService(StudentRepository studentRepository, GroupRepository groupRepository,
 			CourseRepository courseRepository) {
-		this.studentDao = studentDao;
-		this.groupDao = groupDao;
+		this.studentRepository = studentRepository;
+		this.groupRepository = groupRepository;
 		this.courseRepository = courseRepository;
 	}
 
